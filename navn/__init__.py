@@ -1,5 +1,5 @@
 import os
-
+from .dnshandler import DNSHandler
 from flask import Flask
 
 
@@ -15,6 +15,15 @@ def create_app(test_config=None):
         app.config.from_mapping(test_config)
 
     Flask.API_KEY = "67ffcc1f68e54cb65d03d07ad6eaa27128385be7299d0ea265bb838cd10ff538"
+    Flask.DNS_HANDLER = DNSHandler(
+        "2001:470:e6fc:4000::4a11:aa",
+        {
+            "ssl.tallwireless.com.": (
+                "gDzlZLznMSzqWOS1JmXEC7rqOiQ0cIyOVmDb1FRhx1UXPdjiZr0TOWhpso01UefoJxiz3xvSpg1XqC+7H3Bc8w==",
+                "HMAC_MD5",
+            )
+        },
+    )
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)

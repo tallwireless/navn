@@ -1,9 +1,11 @@
 import json
-from flask import request, Blueprint
+from flask import request, Blueprint, Flask
 from pprint import pprint as pp
 from .helpers import enforce_login
 
 bp = Blueprint("netbox", __name__, url_prefix="/netbox")
+
+dns_handler = Flask.DNS_HANDLER
 
 
 @bp.route("/", methods=["POST"])
@@ -35,8 +37,7 @@ def netbox_handler():
             if pre[key] != post[key]:
                 changes[key] = [pre[key], post[key]]
 
-        if "dns_name" in changes or "address" in changes:
-            print("update A record")
+        if "dns_name" in changes:
             print("update PTR record")
 
         if "custom_fields.CNAME" in changes:
@@ -44,12 +45,13 @@ def netbox_handler():
             print("update records")
     elif event == "deleted":
         to_delete = data["snapshots"]["prechange"]
-        print(f"delete {to_delete['dns_name']}")
+        ip_address = to_delete["address"].split("/")[0]
+        # dns_handler.delete_host(to_delete["dns_name"], ip_address)
         print(f"delete {to_delete['custom_fields']['CNAME']}")
     elif event == "created":
         to_add = data["snapshots"]["postchange"]
-        print(f"add {to_add['dns_name']}")
-        print(f"add {to_add['custom_fields']['CNAME']}")
+        ip_address = to_add["address"].split("/")[0]
+        dns_handler.add_host(to_add["dns_name"], ip_address)
     return "None."
 
 
