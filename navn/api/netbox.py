@@ -1,11 +1,13 @@
 import json
 from flask import request, Blueprint
 from pprint import pprint as pp
+from .helpers import enforce_login
 
 bp = Blueprint("netbox", __name__, url_prefix="/netbox")
 
 
 @bp.route("/", methods=["POST"])
+@enforce_login
 def netbox_handler():
     """
     This will handle the callbacks from Netbox to process the IP address
